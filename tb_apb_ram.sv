@@ -2,10 +2,7 @@
 `timescale 1ns/1ps
 
 module tb_apb_ram;
-
-    //==================================================
     // 1. APB INTERFACE SIGNALS
-    //==================================================
     reg PCLK;
     reg PRESETn;
     reg PSEL;
@@ -21,16 +18,10 @@ module tb_apb_ram;
     integer pass_count = 0;
     integer fail_count = 0;
     integer assertion_fail_count = 0;
-
-    //==================================================
     // 2. EXPECTED MEMORY - SCOREBOARD REFERENCE MODEL
-    //==================================================
     reg [7:0] expected_mem [0:127];
     integer i;
-
-    //==================================================
     // 3. DESIGN UNDER TEST (DUT)
-    //==================================================
     apb_ram dut (
         .PCLK    (PCLK),
         .PRESETn (PRESETn),
@@ -43,18 +34,12 @@ module tb_apb_ram;
         .PREADY  (PREADY),
         .PSLVERR (PSLVERR)
     );
-
-    //==================================================
     // 4. CLOCK GENERATION
-    //==================================================
     initial begin
         PCLK = 0;
         forever #5 PCLK = ~PCLK;
     end
-
-    //==================================================
     // 5. FUNCTIONAL COVERAGE
-    //==================================================
     covergroup apb_coverage;
 
         // Cover all four RAM blocks
@@ -81,11 +66,8 @@ module tb_apb_ram;
     initial begin
         cov = new();
     end
-
-    //==================================================
     // 6. DRIVER
     // Generates APB transactions
-    //==================================================
 
     task apb_write;
         input [6:0] address;
@@ -141,11 +123,8 @@ module tb_apb_ram;
             PADDR   = 0;
         end
     endtask
-
-    //==================================================
     // 7. MONITOR + SCOREBOARD
     // Observe transfers and compare expected data
-    //==================================================
 
     initial begin
         for (i = 0; i < 128; i = i + 1)
@@ -206,11 +185,8 @@ module tb_apb_ram;
             end
         end
     end
-
-    //==================================================
     // 8. ASSERTIONS
     // Check basic APB protocol requirements
-    //==================================================
 
     reg prev_setup;
     reg [6:0] prev_addr;
@@ -273,10 +249,7 @@ module tb_apb_ram;
             end
         end
     end
-
-    //==================================================
     // 9. MAIN TEST SEQUENCE
-    //==================================================
 
     integer k;
     reg [7:0] random_data;
@@ -296,36 +269,6 @@ module tb_apb_ram;
         // Reset
         repeat (2) @(negedge PCLK);
         PRESETn = 1;
-
-        // Test every RAM block
-      /*  apb_write(7,   8'hA5);
-        apb_read(7);
-
-        apb_write(40,  8'h3C);
-        apb_read(40);
-
-        apb_write(75,  8'hF0);
-        apb_read(75);
-
-        apb_write(100, 8'h69);
-        apb_read(100);
-
-        // Test first and last locations
-        apb_write(31,  8'h5A);
-        apb_read(31);
-
-        apb_write(63,  8'hC3);
-        apb_read(63);
-
-        apb_write(95,  8'h0F);
-        apb_read(95);
-
-        apb_write(127, 8'h96);
-        apb_read(127);
-
-        // Test overwriting an existing location
-        apb_write(7, 8'h12);
-        apb_read(7);*/
 // Test every RAM block
 apb_write(7,   8'hA5);
 expected_mem[7] = 8'hFF;  // Intentionally wrong expected value
@@ -387,13 +330,11 @@ apb_read(7);
 
         // Final report
         #2;
-        $display("==================================");
         $display("VERIFICATION SUMMARY");
         $display("Scoreboard PASS = %0d", pass_count);
         $display("Scoreboard FAIL = %0d", fail_count);
         $display("Assertion FAIL  = %0d", assertion_fail_count);
         $display("Functional coverage = %0.2f%%", cov.get_coverage());
-        $display("==================================");
 
         if ((fail_count == 0) && (assertion_fail_count == 0))
             $display("RESULT: ALL CHECKS PASSED");
